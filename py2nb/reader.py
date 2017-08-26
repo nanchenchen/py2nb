@@ -57,6 +57,22 @@ def convert_toplevel_docstring(tokens):
                                     line='#')
                     # To next token
                     continue
+        # For special comments
+        elif token.type == tokenize.COMMENT:
+            # Convert special comment marks to cell boundaries.
+            if token.string.startswith('#%%'):
+                startline, startcol = token.start
+                # Starting column MUST be 0
+                if startcol == 0:
+                    endline, endcol = token.end
+                    fmt = '# <codecell>\n'
+                    yield TokenInfo(type=tokenize.COMMENT,
+                                    start=(startline, startcol),
+                                    end=(endline, endcol),
+                                    string=fmt,
+                                    line='#')
+                    # To next token
+                    continue
         # Return untouched
         yield token
 
