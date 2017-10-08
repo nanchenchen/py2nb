@@ -47,18 +47,46 @@ python -m py2nb input.py output.ipynb
 
 ## Samples
 
-See `samples` directory.
+See `tests` directory.
 
 ## How It Works
 
-Uses python ``tokenize`` (builtin tokenizer library) for tokenization.
-String literals with triple quote at column zero are converted into a comment
-token with special ``<markdowncell>`` and ``<codecell>`` to feed into the python
-importer in IPython version 3.  The processed tokens are untokenized using the
-``tokenize`` module so that untouched line looks exactly the same as the input.
+Uses python ``tokenize`` (builtin tokenizer library) for tokenization. String
+literals with triple quote at column zero are converted into a comment token
+with special ``<markdowncell>``, ``<rawcell>`` and ``<codecell>`` to feed into
+the Python importer in IPython version 3. The processed tokens are untokenized
+using the ``tokenize`` module so that untouched line looks exactly the same as
+the input.
 
-## Roadmap
+The beginning of a Python code cells may be denoted with a comment string
+like this:
 
-It would be useful if the package were able to extract specially marked
-comments from a Python script and convert them to `raw` cells in the notebook.
-This would be useful for embedding JavaScript or LaTeX.
+```python
+#%%
+```
+
+Triple-quoted comments are converted to Markdown cells:
+
+```python
+"""
+This comment will be converted to a Markdown cell.
+"""
+```
+
+However, if the triple-quoted comment begins with the word `Raw`, the
+comment will be converted to a raw notebook cell:
+
+```python
+"""Raw
+// This Javascript will be placed into a Raw cell in the output notebook.
+<script>
+jQuery(document).ready(function($) {
+
+$(window).load(function(){
+$('#preloader').fadeOut('slow',function(){$(this).remove();});
+});
+
+});
+</script>
+"""
+```

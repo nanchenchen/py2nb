@@ -17,7 +17,7 @@ __________
 Release notes in reverse chronological order:
 
 0.0.1 (2017-10-08)
-  Added support for raw notebook cells.
+  Added support for raw notebook cells and a unit test.
 
 0.0.0 (2017-08-24)
   Forked from `sklam/py2nb <https://github.com/sklam/py2nb>`_ and modified to
