@@ -43,7 +43,7 @@ def convert_toplevel_docstring(tokens):
             text = token.string
             # Must be a docstring
             if text.startswith('"""') or text.startswith("'''"):
-                rawre = re.compile(r'([\"\']{3})Raw\n')
+                rawre = re.compile(r'([\"\']{3})Raw\r?\n')
                 text, rawsub = re.subn(rawre, r'\1', text, count=1)
                 startline, startcol = token.start
                 # Starting column MUST be 0
