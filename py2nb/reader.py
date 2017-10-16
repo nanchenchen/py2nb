@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import re
 import sys
 from collections import namedtuple
 import tokenize
@@ -42,6 +43,8 @@ def convert_toplevel_docstring(tokens):
             text = token.string
             # Must be a docstring
             if text.startswith('"""') or text.startswith("'''"):
+                rawre = re.compile(r'([\"\']{3})Raw\r?\n')
+                text, rawsub = re.subn(rawre, r'\1', text, count=1)
                 startline, startcol = token.start
                 # Starting column MUST be 0
                 if startcol == 0:
@@ -49,7 +52,26 @@ def convert_toplevel_docstring(tokens):
                     lines = ['# ' + line
                              for line in text.strip('"\' \n').split('\n')]
                     text = '\n'.join(lines)
-                    fmt = '# <markdowncell>\n{0}\n# <codecell>'.format(text)
+                    if rawsub:
+                        fmt = '# <rawcell>\n{0}\n# <codecell>'.format(text)
+                    else:
+                        fmt = '# <markdowncell>\n{0}\n# <codecell>'.format(text)
+                    yield TokenInfo(type=tokenize.COMMENT,
+                                    start=(startline, startcol),
+                                    end=(endline, endcol),
+                                    string=fmt,
+                                    line='#')
+                    # To next token
+                    continue
+        # For special comments
+        elif token.type == tokenize.COMMENT:
+            # Convert special comment marks to cell boundaries.
+            if token.string.startswith('#%%'):
+                startline, startcol = token.start
+                # Starting column MUST be 0
+                if startcol == 0:
+                    endline, endcol = token.end
+                    fmt = '# <codecell>\n'
                     yield TokenInfo(type=tokenize.COMMENT,
                                     start=(startline, startcol),
                                     end=(endline, endcol),
